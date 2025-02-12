@@ -1,6 +1,6 @@
-Name: Navaneeth Krishna
-Topic: Simple CRUD application for inventory management
-Language: Python        Database: MySQL
+Name: Navaneeth Krishna\n
+Topic: Simple CRUD application for inventory management\n
+Language: Python        Database: MySQL\n
 
 | Username  | Password |
 | ------------- | ------------- |
