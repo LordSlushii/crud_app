@@ -1,6 +1,46 @@
 import mysql.connector as mycon
+import json
+import jwt
+import time
+import secrets
 from tabulate import tabulate
-cob = mycon.connect(user = "root", password = "navijune4", host = "localhost", database = "crud")
+
+cob = mycon.connect(user="root", password="*********", host="localhost", database="crud")
+
+SECRET_KEY = secrets.token_hex(32)
+
+def load_json():
+    with open("users.json", "r") as file:
+        return json.load(file)
+
+def login():
+    users = load_json()  
+    username = input("Enter Username: ")
+    password = input("Enter Password: ")
+
+    if username in users and users[username] == password:
+        payload = {
+            "username": username,
+            "exp": time.time() + 3600 
+        }
+        token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+        print(f"Login successful! Your token is: {token}")
+        return token
+    else:
+        print("Invalid credentials")
+        return None
+
+def verify_token(token):
+    try:
+        decoded = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        print("Token is valid.")
+        return decoded
+    except jwt.ExpiredSignatureError:
+        print("Token has expired.")
+        return None
+    except jwt.InvalidTokenError:
+        print("Invalid token.")
+        return None
 
 def create():
     tab = cob.cursor()
@@ -13,14 +53,13 @@ def create():
     print("\nUpdated Successfully!")
     read()
 
-
 def read():
     tab = cob.cursor()
     tab.execute('SELECT * FROM inventory')
     lis = []
     for i in tab:
         lis.append(list(i))
-    print("\n",tabulate(lis, headers=["ID","Item Name", "Quantity", "Cost in Rupees"]), "\n")
+    print("\n", tabulate(lis, headers=["ID", "Item Name", "Quantity", "Cost in Rupees"]), "\n")
 
 def update():
     tab = cob.cursor()
@@ -67,6 +106,22 @@ def delete():
         tab.execute(f"DELETE FROM inventory WHERE id = {id}")
         cob.commit()
         read()
-    
-    
-delete()
+
+if __name__ == "__main__":
+    token = login()
+    if token:
+        user = verify_token(token)
+        if user:
+            action = input("Choose operation:\n1. Create\n2. Read\n3. Update\n4. Delete\nEnter choice: ")
+            if action == "1":
+                create()
+            elif action == "2":
+                read()
+            elif action == "3":
+                update()
+            elif action == "4":
+                delete()
+            else:
+                print("Invalid choice")
+        else:
+            print("Access denied!")
