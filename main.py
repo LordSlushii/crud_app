@@ -5,7 +5,9 @@ import time
 import secrets
 from tabulate import tabulate
 
-cob = mycon.connect(user="root", password="*********", host="localhost", database="crud")
+print("Connecting to AWS Server...")
+cob = mycon.connect(user="admin", password="adminpass", host="crud-app.c9ayiokeiq4o.ap-south-1.rds.amazonaws.com", database="crud")
+print("Connection Successful!")
 
 SECRET_KEY = secrets.token_hex(32)
 
@@ -45,13 +47,20 @@ def verify_token(token):
 def create():
     tab = cob.cursor()
     itemID = int(input("Enter Item ID: "))
-    itemName = input("Enter Item Name: ")
-    qty = int(input("Enter Quantity: "))
-    cost = int(input("Enter Cost: "))
-    tab.execute(f"INSERT INTO inventory VALUES ({itemID},'{itemName}', {qty}, {cost})")
-    cob.commit()
-    print("\nUpdated Successfully!")
-    read()
+    tab.execute('select id from inventory')
+    lis = []
+    for i in tab:
+        lis.append(i[0])
+    if itemID in lis:
+        print("This ID already exists")
+    else:
+        itemName = input("Enter Item Name: ")
+        qty = int(input("Enter Quantity: "))
+        cost = int(input("Enter Cost: "))
+        tab.execute(f"INSERT INTO inventory VALUES ({itemID},'{itemName}', {qty}, {cost})")
+        cob.commit()
+        print("\nUpdated Successfully!")
+        read()
 
 def read():
     tab = cob.cursor()
@@ -112,16 +121,19 @@ if __name__ == "__main__":
     if token:
         user = verify_token(token)
         if user:
-            action = input("Choose operation:\n1. Create\n2. Read\n3. Update\n4. Delete\nEnter choice: ")
-            if action == "1":
-                create()
-            elif action == "2":
-                read()
-            elif action == "3":
-                update()
-            elif action == "4":
-                delete()
-            else:
-                print("Invalid choice")
+            while True:
+                action = input("Choose operation:\n1. Create\n2. Read\n3. Update\n4. Delete\n0.Exit\nEnter choice: ")
+                if action == "1":
+                    create()
+                elif action == "2":
+                    read()
+                elif action == "3":
+                    update()
+                elif action == "4":
+                    delete()
+                elif action == "0":
+                    break
+                else:
+                    print("Invalid choice")
         else:
             print("Access denied!")
