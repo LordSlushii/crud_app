@@ -1,6 +1,6 @@
 import mysql.connector as mycon
 from tabulate import tabulate
-cob = mycon.connect(user = "root", password = "******", host = "localhost", database = "crud")
+cob = mycon.connect(user = "root", password = "navijune4", host = "localhost", database = "crud")
 
 def create():
     tab = cob.cursor()
@@ -52,4 +52,21 @@ def update():
 
         cob.commit()
         read()
+
+def delete():
+    tab = cob.cursor()
+    read()
+    id = int(input("Select Item ID: "))
+    tab.execute("select id from inventory")
+    lis = []
+    for i in tab:
+        lis.append(i[0])
+    if id not in lis:
+        print("This id does not exist")
+    else:
+        tab.execute(f"DELETE FROM inventory WHERE id = {id}")
+        cob.commit()
+        read()
     
+    
+delete()
