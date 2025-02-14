@@ -1,6 +1,6 @@
 import mysql.connector as mycon
 from tabulate import tabulate
-cob = mycon.connect(user = "root", password = "navijune4", host = "localhost", database = "crud")
+cob = mycon.connect(user = "root", password = "******", host = "localhost", database = "crud")
 
 def create():
     tab = cob.cursor()
