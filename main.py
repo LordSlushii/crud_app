@@ -5,12 +5,15 @@ import time
 import secrets
 from tabulate import tabulate
 
+#Connect to AWS Servers
 print("Connecting to AWS Server...")
 cob = mycon.connect(user="admin", password="adminpass", host="crud-app.c9ayiokeiq4o.ap-south-1.rds.amazonaws.com", database="crud")
 print("Connection Successful!")
 
+#Creates a personal secret key
 SECRET_KEY = secrets.token_hex(32)
 
+#loads json file called users.json
 def load_json():
     with open("users.json", "r") as file:
         return json.load(file)
@@ -44,6 +47,7 @@ def verify_token(token):
         print("Invalid token.")
         return None
 
+#create entry for a table
 def create():
     tab = cob.cursor()
     itemID = int(input("Enter Item ID: "))
@@ -62,6 +66,7 @@ def create():
         print("\nUpdated Successfully!")
         read()
 
+#read all entries in a table
 def read():
     tab = cob.cursor()
     tab.execute('SELECT * FROM inventory')
@@ -70,6 +75,7 @@ def read():
         lis.append(list(i))
     print("\n", tabulate(lis, headers=["ID", "Item Name", "Quantity", "Cost in Rupees"]), "\n")
 
+#update an entry in the table
 def update():
     tab = cob.cursor()
     read()
@@ -101,6 +107,7 @@ def update():
         cob.commit()
         read()
 
+#delete an entry from the table
 def delete():
     tab = cob.cursor()
     read()
@@ -119,10 +126,10 @@ def delete():
 if __name__ == "__main__":
     token = login()
     if token:
-        user = verify_token(token)
+        user = verify_token(token) #checks if token is verified
         if user:
             while True:
-                action = input("Choose operation:\n1. Create\n2. Read\n3. Update\n4. Delete\n0.Exit\nEnter choice: ")
+                action = input("Choose operation:\n1. Create\n2. Read\n3. Update\n4. Delete\n0.Exit\nEnter choice: ") #menu
                 if action == "1":
                     create()
                 elif action == "2":
